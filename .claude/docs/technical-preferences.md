@@ -5,44 +5,45 @@
 
 ## Engine & Language
 
-- **Engine**: [TO BE CONFIGURED — run /setup-engine]
-- **Language**: [TO BE CONFIGURED]
-- **Rendering**: [TO BE CONFIGURED]
-- **Physics**: [TO BE CONFIGURED]
+- **Engine**: Unreal Engine 5.7
+- **Language**: C++ (primary), Blueprint (gameplay prototyping)
+- **Rendering**: Deferred Rendering, Lumen GI, Nanite (use selectively — primitives won't need Nanite)
+- **Physics**: Chaos Physics (UE5 default)
 
 ## Input & Platform
 
 <!-- Written by /setup-engine. Read by /ux-design, /ux-review, /test-setup, /team-ui, and /dev-story -->
 <!-- to scope interaction specs, test helpers, and implementation to the correct input methods. -->
 
-- **Target Platforms**: [TO BE CONFIGURED — e.g., PC, Console, Mobile, Web]
-- **Input Methods**: [TO BE CONFIGURED — e.g., Keyboard/Mouse, Gamepad, Touch, Mixed]
-- **Primary Input**: [TO BE CONFIGURED — the dominant input for this game]
-- **Gamepad Support**: [TO BE CONFIGURED — Full / Partial / None]
-- **Touch Support**: [TO BE CONFIGURED — Full / Partial / None]
-- **Platform Notes**: [TO BE CONFIGURED — any platform-specific UX constraints]
+- **Target Platforms**: PC (Windows)
+- **Input Methods**: Keyboard/Mouse, Gamepad
+- **Primary Input**: Gamepad
+- **Gamepad Support**: Partial
+- **Touch Support**: None
+- **Platform Notes**: デスクトップ対戦想定。ゲームパッド推奨だがキーボード分割対戦も対応必須。ホバー専用インタラクション禁止。
 
 ## Naming Conventions
 
-- **Classes**: [TO BE CONFIGURED]
-- **Variables**: [TO BE CONFIGURED]
-- **Signals/Events**: [TO BE CONFIGURED]
-- **Files**: [TO BE CONFIGURED]
-- **Scenes/Prefabs**: [TO BE CONFIGURED]
-- **Constants**: [TO BE CONFIGURED]
+- **Classes**: Prefixed PascalCase — `A` for Actor, `U` for UObject, `F` for struct, `I` for Interface (例: `APlayerFighter`, `UCombatComponent`, `FAttackData`)
+- **Variables**: PascalCase (例: `MoveSpeed`, `CurrentHealth`)
+- **Booleans**: `b` prefix (例: `bIsAlive`, `bCanParry`)
+- **Functions**: PascalCase (例: `TakeDamage()`, `TriggerParry()`)
+- **Files**: Match class name without prefix (例: `PlayerFighter.h`, `CombatComponent.cpp`)
+- **Blueprints**: PascalCase with `BP_` prefix (例: `BP_PlayerFighter`, `BP_FightingGameMode`)
+- **Constants**: PascalCase or UPPER_SNAKE_CASE
 
 ## Performance Budgets
 
-- **Target Framerate**: [TO BE CONFIGURED]
-- **Frame Budget**: [TO BE CONFIGURED]
-- **Draw Calls**: [TO BE CONFIGURED]
-- **Memory Ceiling**: [TO BE CONFIGURED]
+- **Target Framerate**: 60 fps
+- **Frame Budget**: 16.6ms
+- **Draw Calls**: 1,000 上限（格闘ゲームの単純シーン向け — 2キャラ + プリミティブステージ）
+- **Memory Ceiling**: 8GB RAM / 4GB VRAM
 
 ## Testing
 
-- **Framework**: [TO BE CONFIGURED]
-- **Minimum Coverage**: [TO BE CONFIGURED]
-- **Required Tests**: Balance formulas, gameplay systems, networking (if applicable)
+- **Framework**: Unreal Automation System (FAutomationTestBase)
+- **Minimum Coverage**: ゲームロジック（体力計算・ラウンド判定）、コマンド入力検出、パリィ判定タイミング
+- **Required Tests**: バランス式（ダメージ計算）、ゲームプレイシステム（ラウンド勝敗）、入力シーケンス検出
 
 ## Forbidden Patterns
 
@@ -65,23 +66,23 @@
 <!-- Read by /code-review, /architecture-decision, /architecture-review, and team skills -->
 <!-- to know which specialist to spawn for engine-specific validation. -->
 
-- **Primary**: [TO BE CONFIGURED — run /setup-engine]
-- **Language/Code Specialist**: [TO BE CONFIGURED]
-- **Shader Specialist**: [TO BE CONFIGURED]
-- **UI Specialist**: [TO BE CONFIGURED]
-- **Additional Specialists**: [TO BE CONFIGURED]
-- **Routing Notes**: [TO BE CONFIGURED]
+- **Primary**: unreal-specialist
+- **Language/Code Specialist**: ue-blueprint-specialist (Blueprint graphs) または unreal-specialist (C++)
+- **Shader Specialist**: unreal-specialist (専用シェーダースペシャリストなし — Primaryがマテリアルをカバー)
+- **UI Specialist**: ue-umg-specialist (UMG ウィジェット、CommonUI、入力ルーティング、ウィジェットスタイリング)
+- **Additional Specialists**: ue-gas-specialist (Gameplay Ability System、アトリビュート、ゲームプレイエフェクト)、ue-replication-specialist (プロパティレプリケーション、RPC、クライアント予測、ネットコード)
+- **Routing Notes**: C++ アーキテクチャと広範なエンジン決定にはPrimaryを使用。Blueprint グラフアーキテクチャとBP/C++境界設計にはBlueprint スペシャリストを使用。GASはすべてのアビリティとアトリビュートコードに使用。レプリケーションスペシャリストはマルチプレイヤーまたはネットワークシステムに使用。UMGスペシャリストはすべてのUI実装に使用。
 
 ### File Extension Routing
 
 <!-- Skills use this table to select the right specialist per file type. -->
-<!-- If a row says [TO BE CONFIGURED], fall back to Primary for that file type. -->
 
 | File Extension / Type | Specialist to Spawn |
 |-----------------------|---------------------|
-| Game code (primary language) | [TO BE CONFIGURED] |
-| Shader / material files | [TO BE CONFIGURED] |
-| UI / screen files | [TO BE CONFIGURED] |
-| Scene / prefab / level files | [TO BE CONFIGURED] |
-| Native extension / plugin files | [TO BE CONFIGURED] |
-| General architecture review | Primary |
+| Game code (.cpp, .h files) | unreal-specialist |
+| Shader / material files (.usf, .ush, Material assets) | unreal-specialist |
+| UI / screen files (.umg, UMG Widget Blueprints) | ue-umg-specialist |
+| Scene / prefab / level files (.umap, .uasset) | unreal-specialist |
+| Native extension / plugin files (Plugin .uplugin, modules) | unreal-specialist |
+| Blueprint graphs (.uasset BP classes) | ue-blueprint-specialist |
+| General architecture review | unreal-specialist |

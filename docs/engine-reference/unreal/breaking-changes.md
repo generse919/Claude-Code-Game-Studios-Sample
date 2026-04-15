@@ -61,6 +61,45 @@ New lighting system supports millions of dynamic lights.
 
 ---
 
+### FName Constructor Default Changed (5.5)
+**Risk**: MEDIUM — affects C++ code constructing FNames from strings
+
+The default `EFindName` parameter changed from `FNAME_Find` to `FNAME_Add`.
+
+| Before (≤5.4) | After (5.5+) |
+|---------------|--------------|
+| `FName("X")` → returns `NAME_None` if not in name table | `FName("X")` → **creates** entry if it doesn't exist |
+
+```cpp
+// ✅ Be explicit in 5.5+ to avoid unintended name creation
+FName LookupOnly(TEXT("MyTag"), FNAME_Find);   // Returns NAME_None if absent
+FName CreateNew(TEXT("MyTag"), FNAME_Add);       // Creates if absent (new default)
+```
+
+**CLASH Impact**: Use `FGameplayTag` instead of raw FNames for ability/input lookups.
+
+---
+
+### `_API` Export Macros Moved to Method Level (5.6)
+**Risk**: HIGH if using third-party plugins or internal engine APIs
+
+Epic moved `_API` macros (e.g., `PCG_API`, `ENGINE_API`) from class-level to individual
+method/variable level. Code that called implicitly-exported methods may now get linker errors.
+
+```
+// Was exported in 5.5 (class-level PCG_API)
+// LINKER ERROR in 5.6+ (method no longer individually exported)
+UPCGSplineProjectionData::GetSpline(...)
+```
+
+**Fix**: Add `_API` explicitly to each method your code calls, or contact Epic.
+
+**CLASH Impact**: LOW for this project (no PCG). Verify any third-party plugins added later.
+
+Source: https://forums.unrealengine.com/t/linker-errors-in-5-6-due-to-moving-the-use-of-_api-defines-from-types-to-individual-methods/2591466
+
+---
+
 ## MEDIUM RISK — Behavioral Changes
 
 ### Enhanced Input System (Now Default)

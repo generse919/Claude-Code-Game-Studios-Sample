@@ -3,9 +3,9 @@
 | Field | Value |
 |-------|-------|
 | **Engine Version** | Unreal Engine 5.7 |
-| **Release Date** | November 2025 |
-| **Project Pinned** | 2026-02-13 |
-| **Last Docs Verified** | 2026-02-13 |
+| **Release Date** | December 2025 |
+| **Project Pinned** | 2026-04-15 |
+| **Last Docs Verified** | 2026-04-15 |
 | **LLM Knowledge Cutoff** | May 2025 |
 
 ## Knowledge Gap Warning
@@ -43,6 +43,17 @@ Always cross-reference this directory before suggesting Unreal API calls.
 ### Deprecated Systems
 - **Legacy Material System**: Migrate to Substrate for new projects
 - **Old PCG API**: Use new production-ready PCG API (5.7+)
+
+## CLASH Project Notes
+
+This project targets UE5.7 for a local 2-player fighting game (PC Windows only).
+Key systems to verify against post-cutoff changes before implementing:
+
+- **Enhanced Input** — command input sequences (↓→P etc.) for special moves
+- **Chaos Physics** — hitbox/hurtbox collision channels
+- **Animation Blueprint** — character state machine (idle/attack/parry/hit/KO)
+- **UMG** — health bar, round counter, timer HUD
+- **FName** — any tag-based ability or input action lookups (see breaking-changes.md)
 
 ## Verified Sources
 

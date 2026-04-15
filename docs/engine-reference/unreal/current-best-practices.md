@@ -320,6 +320,80 @@ UE_VLOG_LOCATION(this, LogTemp, Log, TargetLocation, 50.f, FColor::Green, TEXT("
 
 ---
 
+---
+
+## CLASH-Specific: Fighting Game Architecture in UE5.7
+
+### Fixed Timestep for Frame-Perfect Logic
+
+Fighting games require deterministic, frame-perfect collision and input detection.
+UE5's default variable timestep is **not suitable** for hitbox logic.
+
+```cpp
+// In your GameMode or custom subsystem, run game logic at fixed tick:
+// Option A: Custom fixed-tick component
+void UFightingGameSubsystem::Tick(float DeltaTime) {
+    Accumulator += DeltaTime;
+    while (Accumulator >= FIXED_DELTA) {
+        TickGameLogic(FIXED_DELTA);  // hitboxes, state transitions here
+        Accumulator -= FIXED_DELTA;
+    }
+}
+constexpr float FIXED_DELTA = 1.0f / 60.0f;  // 60 fps game logic
+
+// Option B: Use UE's built-in async physics tick (AsyncPhysicsTickEnabled)
+// Requires: Project Settings > Physics > Enable Async Scene
+```
+
+### Collision Channels for Hitbox/Hurtbox/Pushbox
+
+```ini
+; DefaultEngine.ini — add custom channels
+[/Script/Engine.CollisionProfile]
++DefaultChannelResponses=(Channel=ECC_GameTraceChannel1,DefaultResponse=ECR_Ignore,bTraceType=False,bStaticObject=False,Name="Hitbox")
++DefaultChannelResponses=(Channel=ECC_GameTraceChannel2,DefaultResponse=ECR_Ignore,bTraceType=False,bStaticObject=False,Name="Hurtbox")
++DefaultChannelResponses=(Channel=ECC_GameTraceChannel3,DefaultResponse=ECR_Ignore,bTraceType=False,bStaticObject=False,Name="Pushbox")
+```
+
+### Command Input Sequence Detection (Enhanced Input)
+
+Enhanced Input does **not** natively support sequential button combos (↓→P etc.).
+Implement a custom `UInputTrigger` subclass:
+
+```cpp
+UCLASS()
+class UInputTriggerSequence : public UInputTrigger {
+    GENERATED_BODY()
+
+    UPROPERTY(EditAnywhere)
+    TArray<TObjectPtr<UInputAction>> Sequence;
+
+    UPROPERTY(EditAnywhere)
+    float MaxSequenceTime = 0.5f;
+
+    ETriggerState UpdateState_Implementation(
+        const UEnhancedPlayerInput* PlayerInput,
+        FInputActionValue ModifiedValue,
+        float DeltaTime) override;
+};
+```
+
+Alternative: Track input history in C++ per frame and check sequences manually
+(simpler for a game jam prototype).
+
+### Blueprint vs C++ Split for Fighting Game
+
+| System | Use |
+|--------|-----|
+| Hit detection, frame data, state machine | C++ |
+| Combo input sequences | C++ (custom InputTrigger) |
+| Hit sparks, camera shake, screen flash | Blueprint / Niagara |
+| HUD data binding (health, rounds) | UMG + C++ delegate |
+| Audio cues (parry sound, KO sfx) | Blueprint → MetaSounds |
+| Character visual feedback | Blueprint |
+
+---
+
 ## Summary: UE 5.7 Recommended Stack
 
 | Feature | Use This (2026) | Notes |
