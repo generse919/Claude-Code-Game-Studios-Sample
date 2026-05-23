@@ -47,8 +47,7 @@
 
 ## Forbidden Patterns
 
-<!-- Add patterns that should never appear in this project's codebase -->
-- [None configured yet — add as architectural decisions are made]
+- `FName` for move/character/hitbox identification — use `FGameplayTag` instead. UE5.5 changed `FName` default from `FNAME_Find` to `FNAME_Add`; tag comparisons via `FName` are unreliable in CLASH's data pipeline. (Source: character-data GDD, AC-2)
 
 ## Allowed Libraries / Addons
 

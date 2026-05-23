@@ -37,7 +37,7 @@
 #   Each entry: name, status, source, referenced_by[], attributes{}, added, revised
 
 version: 1
-last_updated: ""
+last_updated: "2026-05-23"
 
 # ─── ENTITIES ────────────────────────────────────────────────────────────────
 # Named game-world objects: enemies, NPCs, characters, factions, bosses.
@@ -106,7 +106,43 @@ items: []
 #   output_range[min, max], added
 # Optional: expression (the actual formula), notes
 
-formulas: []
+formulas:
+  - name: OnBlockAdvantage
+    status: active
+    source: design/gdd/character-data.md
+    referenced_by:
+      - design/gdd/character-data.md
+    variables:
+      - BlockstunFrames
+      - RecoveryFrames
+    output_range: [-55, 23]
+    expression: "BlockstunFrames - RecoveryFrames"
+    notes: "DERIVED — not stored on FMoveData. Negative = attacker is disadvantaged
+      on block (safe pressure range: -30 to +5). Consumed by: 基本攻撃システム,
+      パリィシステム (balance validation), キャラクター状態機械 (turn transitions)."
+    added: 2026-05-20
+    revised: ""
+
+  - name: OnHitAdvantage
+    status: active
+    source: design/gdd/character-data.md
+    referenced_by:
+      - design/gdd/character-data.md
+    variables:
+      - HitstunFrames
+      - RecoveryFrames
+    output_range: [1, 38]
+    expression: "HitstunFrames - RecoveryFrames"
+    notes: "DERIVED — not stored on FMoveData. Design recommendation: +3 to +25.
+      Invariant: HitstunFrames > RecoveryFrames (enforced at editor save time).
+      Exempt: MoveCategory==Throw and MoveCategory==Special (can have negative output).
+      Output range [1, 38] applies to LightAttack/HeavyAttack/Parry only.
+      Consumed by: 基本攻撃システム, キャラクター状態機械 (combo window timing).
+      REVISED 2026-05-23: output_range corrected from [-50,38] to [1,38].
+      REVISED 2026-05-23: invariant corrected from 'HitstunFrames > BlockstunFrames'
+      to 'HitstunFrames > RecoveryFrames'. Special category exemption added (B3)."
+    added: 2026-05-20
+    revised: "2026-05-23"
 
 # Example:
 #
@@ -139,7 +175,19 @@ formulas: []
 #
 # Required fields: name, status, source, referenced_by, value, unit, added
 
-constants: []
+constants:
+  - name: MaxHealth_Default
+    status: active
+    source: design/gdd/character-data.md
+    referenced_by:
+      - design/gdd/character-data.md
+    value: 1000
+    unit: hp
+    notes: "FCharacterStats.MaxHealth のデフォルト値。チューニング範囲: 500–2000。
+      体力システム・基本攻撃システム・必殺技システムの KO 打数計算の基準値。
+      キャラクターごとに上書き可能 — このエントリは基準値のみ。"
+    added: 2026-05-20
+    revised: ""
 
 # Example:
 #
